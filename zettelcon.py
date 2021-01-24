@@ -6,7 +6,7 @@ from multiprocessing import Pool, Value
 from pprint import pprint
 
 REX_LINK = re.compile(r"\[\[(.+?)\]\]")
-FOLDER = "notes_small"
+FOLDER = "notes"
 SUFFIX = ".md"
 NPROCS = 2
 BACKLINK_START = "## Backlinks"
@@ -21,11 +21,11 @@ def main():
     for outlinks in res:
         links.extend(outlinks)
 
-    pprint(links[:50])    
+    #pprint(links[:50])    
     links = change_ids_to_filepaths(links, files)
 
     backlinks_per_targetfile = collect_backlinks_per_file(links)
-    pprint(backlinks_per_targetfile)
+    #pprint(backlinks_per_targetfile)
     
     for filename, backlinks in backlinks_per_targetfile.items():
         write_backlinks_to_file(backlinks)
@@ -45,10 +45,15 @@ def write_backlinks_to_file(backlinks):
     """
 
     target_file = backlinks[0]["link_target"]
+    backlinks_by_src = defaultdict(list)
+
+    for backlink in backlinks:
+        backlinks_by_src[backlink["link_source"]].append(backlink)
 
     with open(target_file, "r+") as fh:
         contents = fh.read()
-        
+    
+    with open(target_file, "w+") as fh:
         try:
             backlink_sec_idx = contents.index(BACKLINK_START)
             add_newline = False
@@ -57,23 +62,17 @@ def write_backlinks_to_file(backlinks):
             backlink_sec_idx = -1
             add_newline = True
         
-        backlink_section = "\n" if add_newline else ""
+        backlink_section = "\n\n" if add_newline else ""
         backlink_section += BACKLINK_START + "\n\n"
 
-        for backlink in backlinks:
-            backlink_section += "* [[{}]]\n".format(backlink["link_source"])
+        for source_file, backlinks in backlinks_by_src.items():
+            backlink_section += "* [[{}]]\n".format(source_file)
+            
+            for backlink in backlinks:
+                backlink_section += "  * {}\n".format(backlink["link_context"])
 
-        contents = contents[:backlink_sec_idx] + backlink_section
-        print(contents)
-        #fh.write(contents)
-
-        """
-        backlink_start = a.index("# Backlinks")
-        # ValueError if not found
-
-        a = a[:backlink_start] + "# AYAYAYAYAY"
-        """
-
+        contents_backlinked = contents[:backlink_sec_idx] + backlink_section
+        fh.write(contents_backlinked)
 
 def change_ids_to_filepaths(links, all_filenames):
     out = []
