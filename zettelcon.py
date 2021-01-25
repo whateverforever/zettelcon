@@ -112,7 +112,7 @@ def get_file_outlinks(path):
     with open(path, "r") as fh:
         contents = fh.read()
 
-    paragraphs = [para.strip() for para in contents.split("\n\n")]
+    paragraphs = [para.strip() for para in contents.split("\n")]
 
     outlinks = []
     for para in paragraphs:
