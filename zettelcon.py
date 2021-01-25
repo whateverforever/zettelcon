@@ -9,7 +9,7 @@ REX_LINK = re.compile(r"\[\[(.+?)\]\]")
 FOLDER = "notes"
 SUFFIX = ".md"
 NPROCS = 2
-BACKLINK_START = "***\n\n## Backlinks"
+BACKLINK_START = "## Backlinks"
 
 
 def main():
@@ -44,7 +44,7 @@ def collect_backlinks_per_file(links):
 
 def write_backlinks_to_file(backlinks):
     """
-    Assumes all the backlinks point to the same file
+    #ASSUMES all the backlinks point to the same file
     """
 
     target_file = backlinks[0]["link_target"]
@@ -69,11 +69,16 @@ def write_backlinks_to_file(backlinks):
         backlink_section += BACKLINK_START + "\n\n"
 
         for source_file, backlinks in backlinks_by_src.items():
-            backlink_section += "> * [[{}]]\n".format(source_file)
+            source_file_relative = os.path.relpath(
+                source_file, start=os.path.dirname(target_file)
+            )
+            backlink_section += "> * [[{}]]\n".format(source_file_relative)
 
             for backlink in backlinks:
+                # ASSUMES two spaces are used for list indentation
                 backlink_section += ">   * {}\n".format(backlink["link_context"])
 
+        # ASSUMES backlink section is last part of page
         contents_backlinked = contents[:backlink_sec_idx] + backlink_section
         fh.write(contents_backlinked)
 
@@ -88,6 +93,7 @@ def change_ids_to_filepaths(links, all_filenames):
             if entry["link_target"] in filename:
                 target_candidates.append(filename)
 
+        # ASSUMES note IDs are unique, also among rest of file names
         if len(target_candidates) == 1:
             entry["link_target_orig"] = entry["link_target"]
             entry["link_target"] = target_candidates[0]
