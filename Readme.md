@@ -16,7 +16,7 @@
 
 - [ ] If something is quoted in a list, the list is copied over to the backlink section messing up the alignment and formatting
   - Maybe this can be fixed by not going by paragraphs but newlines instead
-- [ ] Path in backlinks needs to be relative to markdown file
+- [x] Path in backlinks needs to be relative to markdown file
 - [x] Bureaucracy is fucked up
 - [x] Not idempotent
 
