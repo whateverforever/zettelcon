@@ -62,7 +62,7 @@ def write_backlinks_to_file(backlinks):
             add_newline = False
         except ValueError:
             # no backlink section in file
-            backlink_sec_idx = -1
+            backlink_sec_idx = None
             add_newline = True
 
         backlink_section = "\n\n" if add_newline else ""
