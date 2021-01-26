@@ -1,5 +1,11 @@
 # zettelcon
 
+***
+
+## Work in Progress
+
+***
+
 > An additional helper tool to Zettlr to automatically add backlinks to your note files.
 > Edits files in-place, so be careful and try on a copy of your files first.
 > 
@@ -14,8 +20,9 @@
 
 ## Issues
 
-- [ ] If something is quoted in a list, the list is copied over to the backlink section messing up the alignment and formatting
+- If something is quoted in a list, the list is copied over to the backlink section messing up the alignment and formatting
   - Maybe this can be fixed by not going by paragraphs but newlines instead
+  - [ ] Clean quotes lines from any markdown symbols before the line begins
 - [x] Last letter of Agency, Kanban, Habits is cut off
   - These are all files with no contents besides the heading
 - [x] Path in backlinks needs to be relative to markdown file
@@ -27,3 +34,9 @@
 - [ ] Only cite a few words before and after the citation
 - [ ] Add horizontal break before backlinks
 - [x] Put backlinks in > quotation
+
+---
+
+## Next Sprint
+
+- [ ] Output additional info such as islands, sinks, sources, etc.
