@@ -6,6 +6,8 @@ from multiprocessing import Pool, Value
 from pprint import pprint
 
 REX_LINK = re.compile(r"\[\[(.+?)\]\]")
+REX_TITLE = re.compile(r"^#\s+(.+)")
+
 FOLDER = "notes"
 SUFFIX = ".md"
 NPROCS = 2
@@ -22,17 +24,18 @@ def main():
     for outlinks in res:
         links.extend(outlinks)
 
-    # pprint(links[:50])
     links = change_ids_to_filepaths(links, files)
-
-    backlinks_per_targetfile = collect_backlinks_per_file(links)
-    # pprint(backlinks_per_targetfile)
+    backlinks_per_targetfile = bundle_backlinks_per_targetfile(links)
 
     for filename, backlinks in backlinks_per_targetfile.items():
         write_backlinks_to_file(backlinks)
 
 
-def collect_backlinks_per_file(links):
+def bundle_backlinks_per_targetfile(links):
+    """
+    Takes a list of backlinks that contain metadata about source and target file.
+    Returns a dict that maps target file names to backlinks which point to it.
+    """
     backlinks_for_file = defaultdict(list)
 
     for link_i in links:
@@ -68,13 +71,16 @@ def write_backlinks_to_file(backlinks):
         backlink_section = "\n\n" if add_newline else ""
         backlink_section += BACKLINK_START + "\n\n"
 
-        for source_file, backlinks in backlinks_by_src.items():
+        for source_file, src_backlinks in backlinks_by_src.items():
+            source_file_title = src_backlinks[0]["link_source_title"]
             source_file_relative = os.path.relpath(
                 source_file, start=os.path.dirname(target_file)
             )
-            backlink_section += "> * [[{}]]\n".format(source_file_relative)
+            backlink_section += "> * {} [[{}]]\n".format(
+                source_file_title, source_file_relative
+            )
 
-            for backlink in backlinks:
+            for backlink in src_backlinks:
                 # ASSUMES two spaces are used for list indentation
                 backlink_section += ">   * {}\n".format(backlink["link_context"])
 
@@ -115,13 +121,23 @@ def get_file_outlinks(path):
     paragraphs = [para.strip() for para in contents.split("\n")]
 
     outlinks = []
+    first_header = ""
+
     for para in paragraphs:
         reached_backlink_section = BACKLINK_START in para
         if reached_backlink_section:
             break
 
+        if first_header == "":
+            res = REX_TITLE.match(para)
+            if res:
+                first_header = res.group(1)
+
         links = find_links_in_text(para)
-        links = [{"link_source": path, **entry} for entry in links]
+        links = [
+            {"link_source_title": first_header, "link_source": path, **entry}
+            for entry in links
+        ]
         outlinks.extend(links)
 
     return outlinks
