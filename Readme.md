@@ -22,7 +22,7 @@
 
 - If something is quoted in a list, the list is copied over to the backlink section messing up the alignment and formatting
   - Maybe this can be fixed by not going by paragraphs but newlines instead
-  - [ ] Clean quotes lines from any markdown symbols before the line begins
+  - [x] Clean quotes lines from any markdown symbols before the line begins
 - [x] Display first H1 tag in backlink list, if available
   - Needed if the file names are only IDs and don't give any information of the title
 - [x] Last letter of Agency, Kanban, Habits is cut off

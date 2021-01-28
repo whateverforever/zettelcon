@@ -7,6 +7,7 @@ from pprint import pprint
 
 REX_LINK = re.compile(r"\[\[(.+?)\]\]")
 REX_TITLE = re.compile(r"^#\s+(.+)")
+REX_LISTITEM = re.compile(r"^\s*(\*|-|\+|\d+\.|>) (\[ \]|\[x\])? *")
 
 FOLDER = "notes"
 SUFFIX = ".md"
@@ -76,7 +77,7 @@ def write_backlinks_to_file(backlinks):
             source_file_relative = os.path.relpath(
                 source_file, start=os.path.dirname(target_file)
             )
-            backlink_section += "> * {} [[{}]]\n".format(
+            backlink_section += "> * [{}]({})\n".format(
                 source_file_title, source_file_relative
             )
 
@@ -144,12 +145,13 @@ def get_file_outlinks(path):
 
 
 def find_links_in_text(paragraph):
+    clean_para = REX_LISTITEM.sub("", paragraph)
+    
     out = []
-
     for res in REX_LINK.finditer(paragraph):
         link = {
             "link_target": res.group(1),
-            "link_context": paragraph,
+            "link_context": clean_para,
             "context_pos_start": res.start(),
             "context_pos_end": res.end(),
         }
