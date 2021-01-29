@@ -26,7 +26,7 @@
 - Single python file, no dependencies
 - Can run multi-core for large collections
 - Supports any note ID syntax without explicit regex
-- Supports collections that contain different note ID styles
+- Supports collections that contain more than one note ID style
 
 ```
 $ python zettelcon.py --help
