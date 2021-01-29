@@ -1,23 +1,52 @@
 import glob
 import os
 import re
+from argparse import ArgumentParser
 from collections import defaultdict
 from multiprocessing import Pool, Value
 from pprint import pprint
 
+# ASSUMES the standard zettlr wikilink syntax for links
 REX_LINK = re.compile(r"\[\[(.+?)\]\]")
+# ASSUMES the standard single-line hashtag syntax for titles
 REX_TITLE = re.compile(r"^#\s+(.+)")
-REX_LISTITEM = re.compile(r"^\s*(\*|-|\+|\d+\.|>) (\[ \]|\[x\])? *")
-
-FOLDER = "notes"
-SUFFIX = ".md"
-NPROCS = 2
+REX_LINECLEANER = re.compile(r"^\s*(\*|-|\+|\d+\.|>) (\[ \]|\[x\])? *")
 BACKLINK_START = "## Backlinks"
 
 
 def main():
-    files = glob.glob(os.path.join(FOLDER, f"*{SUFFIX}"))
-    pool = Pool(processes=NPROCS)
+    parser = ArgumentParser(
+        description="Tool to insert automatic backlinks into Zettlr note collections or other interlinked markdown files."
+    )
+    parser.add_argument(
+        "-f",
+        "--folder",
+        help="Path to folder with all the zettels in it. Defaults to current directory.",
+        default=".",
+    )
+    parser.add_argument(
+        "-s",
+        "--suffix",
+        help="Suffix for the files to consider. Defaults to .md",
+        default=".md",
+    )
+    parser.add_argument(
+        "-n",
+        "--nprocs",
+        help="Number of worker processes to run for file reading and writing.",
+        default=2,
+        type=int,
+    )
+
+    args = parser.parse_args()
+    params = vars(args)
+
+    process_directory(**params)
+
+
+def process_directory(folder, suffix, nprocs):
+    files = glob.glob(os.path.join(folder, f"*{suffix}"))
+    pool = Pool(processes=nprocs)
 
     links = []
     res = pool.map(get_file_outlinks, files)
@@ -77,13 +106,15 @@ def write_backlinks_to_file(backlinks):
             source_file_relative = os.path.relpath(
                 source_file, start=os.path.dirname(target_file)
             )
-            backlink_section += "> * [{}]({})\n".format(
+            backlink_section += "> - [{}]({})\n".format(
                 source_file_title, source_file_relative
             )
 
             for backlink in src_backlinks:
                 # ASSUMES two spaces are used for list indentation
-                backlink_section += ">   * {}\n".format(backlink["link_context"])
+                backlink_section += ">   - {}\n".format(backlink["link_context"])
+
+            backlink_section += ">    \n"
 
         # ASSUMES backlink section is last part of page
         contents_backlinked = contents[:backlink_sec_idx] + backlink_section
@@ -145,8 +176,8 @@ def get_file_outlinks(path):
 
 
 def find_links_in_text(paragraph):
-    clean_para = REX_LISTITEM.sub("", paragraph)
-    
+    clean_para = REX_LINECLEANER.sub("", paragraph)
+
     out = []
     for res in REX_LINK.finditer(paragraph):
         link = {
