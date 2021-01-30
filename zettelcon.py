@@ -1,3 +1,4 @@
+import datetime
 import glob
 import os
 import re
@@ -13,6 +14,7 @@ REX_TITLE = re.compile(r"^#\s+(.+)")
 REX_LINECLEANER = re.compile(r"^\s*(\*|-|\+|\d+\.|>) (\[ \]|\[x\])? *")
 BACKLINK_START = "## Backlinks"
 
+NOWSTR = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
 
 def main():
     parser = ArgumentParser(
@@ -115,6 +117,8 @@ def write_backlinks_to_file(backlinks):
                 backlink_section += ">   - {}\n".format(backlink["link_context"])
 
             backlink_section += ">    \n"
+        
+        backlink_section += f"\n_Backlinks last generated {NOWSTR}_\n"
 
         # ASSUMES backlink section is last part of page
         contents_backlinked = contents[:backlink_sec_idx] + backlink_section
