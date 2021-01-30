@@ -59,8 +59,7 @@ def process_directory(folder, suffix, nprocs):
     links = change_ids_to_filepaths(links, files)
     backlinks_per_targetfile = bundle_backlinks_per_targetfile(links)
 
-    for filename, backlinks in backlinks_per_targetfile.items():
-        write_backlinks_to_file(backlinks)
+    pool.map(write_backlinks_to_file, backlinks_per_targetfile.values())
 
 
 def bundle_backlinks_per_targetfile(links):

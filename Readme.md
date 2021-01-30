@@ -56,7 +56,7 @@ optional arguments:
 - [ ] Add horizontal break before backlinks
 - [ ] Output additional info such as islands, sinks, sources, etc.
 - [ ] Check out what happens if a file that links to another doesn't have a title
-- [ ] Make file writing multi core
+- [x] Make file writing multi core
 - [x] Add "last edited XXX" info field to markdown
 
 ---
