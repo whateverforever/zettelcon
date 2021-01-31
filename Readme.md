@@ -48,6 +48,9 @@ optional arguments:
 ```
 
 ---
+
+---
+
 ## Future Work
 
 - [ ] Add option to clear all backlinks
@@ -61,7 +64,7 @@ optional arguments:
 ## Discarded Ideas
 
 - [ ] ~~Add option to commit everything to git before updating links~~
-  - Not needed, because you can simply define a shell alias to do that
+  - Not needed, because you can simply define a shell function to do that
   - ```bash
     gen-backlinks() {
       cd $ZETTELPATH && git add -A && git commit -m "pre-zettelcon backup" ;\
