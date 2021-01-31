@@ -51,13 +51,24 @@ optional arguments:
 ## Future Work
 
 - [ ] Add option to clear all backlinks
-- [ ] Add option to commit everything to git before updating links
 - [ ] Only cite a few words before and after the citation
 - [ ] Add horizontal break before backlinks
 - [ ] Output additional info such as islands, sinks, sources, etc.
 - [ ] Check out what happens if a file that links to another doesn't have a title
 - [x] Make file writing multi core
 - [x] Add "last edited XXX" info field to markdown
+
+## Discarded Ideas
+
+- [ ] ~~Add option to commit everything to git before updating links~~
+  - Not needed, because you can simply define a shell alias to do that
+
+```bash
+gen-backlinks() {
+  cd $ZETTELPATH && git add -A && git commit -m "pre-zettelcon backup" ;\
+  python ~/...path.../zettelcon.py -f $ZETTELPATH
+}
+```
 
 ---
 ## Issues
