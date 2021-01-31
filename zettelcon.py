@@ -1,3 +1,4 @@
+import time
 import datetime
 import glob
 import os
@@ -47,6 +48,7 @@ def main():
 
 
 def process_directory(folder, suffix, nprocs):
+    t_start = time.time()
     files = glob.glob(os.path.join(folder, f"*{suffix}"))
     pool = Pool(processes=nprocs)
 
@@ -60,6 +62,10 @@ def process_directory(folder, suffix, nprocs):
     backlinks_per_targetfile = bundle_backlinks_per_targetfile(links)
 
     pool.map(write_backlinks_to_file, backlinks_per_targetfile.values())
+    
+    t_end = time.time()
+    duration = t_end - t_start
+    print(f"\nWrote {len(links)} backlinks from/to {len(files)} files in {duration:.2f}s")
 
 
 def bundle_backlinks_per_targetfile(links):
