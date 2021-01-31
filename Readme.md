@@ -62,13 +62,12 @@ optional arguments:
 
 - [ ] ~~Add option to commit everything to git before updating links~~
   - Not needed, because you can simply define a shell alias to do that
-
-```bash
-gen-backlinks() {
-  cd $ZETTELPATH && git add -A && git commit -m "pre-zettelcon backup" ;\
-  python ~/...path.../zettelcon.py -f $ZETTELPATH
-}
-```
+  - ```bash
+    gen-backlinks() {
+      cd $ZETTELPATH && git add -A && git commit -m "pre-zettelcon backup" ;\
+      python ~/...path.../zettelcon.py -f $ZETTELPATH
+    }
+    ```
 
 ---
 ## Issues
