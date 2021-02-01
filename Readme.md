@@ -75,6 +75,9 @@ optional arguments:
 ---
 ## Issues
 
+- [x] Friction is not updated for some reason
+  - (maybe because nothing points to it?)
+  - Bug is if a formerly connected note is isolated, its backlinks stay and never change
 - If something is quoted in a list, the list is copied over to the backlink section messing up the alignment and formatting
   - Maybe this can be fixed by not going by paragraphs but newlines instead
   - [x] Clean quotes lines from any markdown symbols before the line begins

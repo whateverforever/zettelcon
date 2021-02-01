@@ -1,21 +1,23 @@
-import time
 import datetime
 import glob
 import os
 import re
+import time
 from argparse import ArgumentParser
 from collections import defaultdict
-from multiprocessing import Pool, Value
-from pprint import pprint
+from multiprocessing import Pool
+from pprint import pformat
 
+BACKLINK_START = "## Backlinks"
 # ASSUMES the standard zettlr wikilink syntax for links
 REX_LINK = re.compile(r"\[\[(.+?)\]\]")
 # ASSUMES the standard single-line hashtag syntax for titles
 REX_TITLE = re.compile(r"^#\s+(.+)")
 REX_LINECLEANER = re.compile(r"^\s*(\*|-|\+|\d+\.|>) (\[ \]|\[x\])? *")
-BACKLINK_START = "## Backlinks"
+REX_TRAILINGNEWLINES = re.compile(r"(\n*)\Z", re.MULTILINE)
 
 NOWSTR = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
+
 
 def main():
     parser = ArgumentParser(
@@ -60,12 +62,21 @@ def process_directory(folder, suffix, nprocs):
 
     links = change_ids_to_filepaths(links, files)
     backlinks_per_targetfile = bundle_backlinks_per_targetfile(links)
-
-    pool.map(write_backlinks_to_file, backlinks_per_targetfile.values())
     
+    pool.map(write_backlinks_to_file, backlinks_per_targetfile.values())
+
+    unreferenced_files = set(files) - set(backlinks_per_targetfile.keys())
+    pool.map(clear_backlinks_from_file, unreferenced_files)
+
     t_end = time.time()
     duration = t_end - t_start
-    print(f"\nWrote {len(links)} backlinks from/to {len(files)} files in {duration:.2f}s")
+    print(
+        f"\nWrote {len(links)} backlinks from/to {len(files)} files in {duration:.2f}s"
+    )
+
+
+def clear_backlinks_from_file(filepath):
+    write_backlink_section_to_file("", filepath)
 
 
 def bundle_backlinks_per_targetfile(links):
@@ -84,7 +95,7 @@ def bundle_backlinks_per_targetfile(links):
 
 def write_backlinks_to_file(backlinks):
     """
-    #ASSUMES all the backlinks point to the same file
+    ASSUMES all the backlinks point to the same file
     """
 
     target_file = backlinks[0]["link_target"]
@@ -93,40 +104,50 @@ def write_backlinks_to_file(backlinks):
     for backlink in backlinks:
         backlinks_by_src[backlink["link_source"]].append(backlink)
 
-    with open(target_file, "r+") as fh:
+    backlink_section = BACKLINK_START + "\n\n"
+
+    for source_file, src_backlinks in backlinks_by_src.items():
+        source_file_title = src_backlinks[0]["link_source_title"]
+        source_file_relative = os.path.relpath(
+            source_file, start=os.path.dirname(target_file)
+        )
+        backlink_section += "> - [{}]({})\n".format(
+            source_file_title, source_file_relative
+        )
+
+        for backlink in src_backlinks:
+            # ASSUMES two spaces are used for list indentation
+            backlink_section += ">   - {}\n".format(backlink["link_context"])
+
+        backlink_section += ">    \n"
+
+    backlink_section += f"\n_Backlinks last generated {NOWSTR}_\n"
+
+    write_backlink_section_to_file(backlink_section, target_file)
+
+
+def write_backlink_section_to_file(section_text, filepath):
+    with open(filepath, "r+") as fh:
         contents = fh.read()
 
-    with open(target_file, "w+") as fh:
+    with open(filepath, "w+") as fh:
         try:
             backlink_sec_idx = contents.index(BACKLINK_START)
-            add_newline = False
         except ValueError:
             # no backlink section in file
             backlink_sec_idx = None
-            add_newline = True
 
-        backlink_section = "\n\n" if add_newline else ""
-        backlink_section += BACKLINK_START + "\n\n"
+        main_content = contents[:backlink_sec_idx] 
+        res = REX_TRAILINGNEWLINES.search(main_content)
 
-        for source_file, src_backlinks in backlinks_by_src.items():
-            source_file_title = src_backlinks[0]["link_source_title"]
-            source_file_relative = os.path.relpath(
-                source_file, start=os.path.dirname(target_file)
-            )
-            backlink_section += "> - [{}]({})\n".format(
-                source_file_title, source_file_relative
-            )
+        num_existing_newlines = len(res.group(1))
+        num_needed_newlines = max(2 - num_existing_newlines, 0)
 
-            for backlink in src_backlinks:
-                # ASSUMES two spaces are used for list indentation
-                backlink_section += ">   - {}\n".format(backlink["link_context"])
-
-            backlink_section += ">    \n"
-        
-        backlink_section += f"\n_Backlinks last generated {NOWSTR}_\n"
+        backlink_section = "\n" * num_needed_newlines
+        backlink_section += section_text
 
         # ASSUMES backlink section is last part of page
-        contents_backlinked = contents[:backlink_sec_idx] + backlink_section
+        contents_backlinked = main_content + backlink_section
         fh.write(contents_backlinked)
 
 
@@ -146,10 +167,14 @@ def change_ids_to_filepaths(links, all_filenames):
             entry["link_target"] = target_candidates[0]
             out.append(entry)
         elif len(target_candidates) == 0:
-            print("NO TARGET FOUND FOR {}".format(entry))
+            print("NO TARGET FOUND FOR {}".format(pformat(entry)))
             pass  # no possible target found
         elif len(target_candidates) > 1:
-            print("MULTIPLE TARGETS FOUND FOR {}: {}".format(entry, target_candidates))
+            print(
+                "MULTIPLE TARGETS FOUND FOR {}: {}".format(
+                    entry, pformat(target_candidates)
+                )
+            )
             pass  # multiple targets found
 
     return out
