@@ -127,10 +127,10 @@ def write_backlinks_to_file(backlinks):
 
 
 def write_backlink_section_to_file(section_text, filepath):
-    with open(filepath, "r+") as fh:
+    with open(filepath, "r", encoding="utf-8") as fh:
         contents = fh.read()
 
-    with open(filepath, "w+") as fh:
+    with open(filepath, "w", encoding="utf-8") as fh:
         try:
             backlink_sec_idx = contents.index(BACKLINK_START)
         except ValueError:
@@ -181,7 +181,7 @@ def change_ids_to_filepaths(links, all_filenames):
 
 
 def get_file_outlinks(path):
-    with open(path, "r") as fh:
+    with open(path, "r", encoding="utf-8") as fh:
         contents = fh.read()
 
     paragraphs = [para.strip() for para in contents.split("\n")]
