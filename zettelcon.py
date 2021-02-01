@@ -36,6 +36,12 @@ def main():
         default=".md",
     )
     parser.add_argument(
+        "-c",
+        "--clear-backlinks",
+        help="Instead of generating backlinks, revert all files to a no-backlinks state",
+        action="store_true",
+    )
+    parser.add_argument(
         "-n",
         "--nprocs",
         help="Number of worker processes to run for file reading and writing.",
@@ -49,10 +55,15 @@ def main():
     process_directory(**params)
 
 
-def process_directory(folder, suffix, nprocs):
+def process_directory(folder, suffix, nprocs, clear_backlinks=False):
     t_start = time.time()
     files = glob.glob(os.path.join(folder, f"*{suffix}"))
     pool = Pool(processes=nprocs)
+
+    if clear_backlinks:
+        pool.map(clear_backlinks_from_file, files)
+        print("Cleared backlinks from all files")
+        return
 
     links = []
     res = pool.map(get_file_outlinks, files)

@@ -53,11 +53,11 @@ optional arguments:
 
 ## Future Work
 
-- [ ] Add option to clear all backlinks
 - [ ] Only cite a few words before and after the citation
 - [ ] Add horizontal break before backlinks
 - [ ] Output additional info such as islands, sinks, sources, etc.
 - [ ] Check out what happens if a file that links to another doesn't have a title
+- [x] Add option to clear all backlinks
 - [x] Make file writing multi core
 - [x] Add "last edited XXX" info field to markdown
 
