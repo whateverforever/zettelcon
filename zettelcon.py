@@ -62,7 +62,7 @@ def process_directory(folder, suffix, nprocs):
 
     links = change_ids_to_filepaths(links, files)
     backlinks_per_targetfile = bundle_backlinks_per_targetfile(links)
-    
+
     pool.map(write_backlinks_to_file, backlinks_per_targetfile.values())
 
     unreferenced_files = set(files) - set(backlinks_per_targetfile.keys())
@@ -104,22 +104,22 @@ def write_backlinks_to_file(backlinks):
     for backlink in backlinks:
         backlinks_by_src[backlink["link_source"]].append(backlink)
 
-    backlink_section = BACKLINK_START + "\n\n"
-
+    entries = []
     for source_file, src_backlinks in backlinks_by_src.items():
         source_file_title = src_backlinks[0]["link_source_title"]
         source_file_relative = os.path.relpath(
             source_file, start=os.path.dirname(target_file)
         )
-        backlink_section += "> - [{}]({})\n".format(
-            source_file_title, source_file_relative
-        )
+        entry = "> - [{}]({})\n".format(source_file_title, source_file_relative)
 
         for backlink in src_backlinks:
             # ASSUMES two spaces are used for list indentation
-            backlink_section += ">   - {}\n".format(backlink["link_context"])
+            entry += ">   - {}\n".format(backlink["link_context"])
 
-        backlink_section += ">    \n"
+        entries.append(entry)
+
+    backlink_section = f"{BACKLINK_START}\n\n"
+    backlink_section += ">    \n".join(entries)
 
     backlink_section += f"\n_Backlinks last generated {NOWSTR}_\n"
 
@@ -137,7 +137,7 @@ def write_backlink_section_to_file(section_text, filepath):
             # no backlink section in file
             backlink_sec_idx = None
 
-        main_content = contents[:backlink_sec_idx] 
+        main_content = contents[:backlink_sec_idx]
         res = REX_TRAILINGNEWLINES.search(main_content)
 
         num_existing_newlines = len(res.group(1))
