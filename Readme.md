@@ -30,7 +30,7 @@
 
 ```
 $ python zettelcon.py --help
-usage: zettelcon.py [-h] [-f FOLDER] [-s SUFFIX] [-n NPROCS]
+usage: zettelcon.py [-h] [-f FOLDER] [-s SUFFIX] [-c] [-n NPROCS]
 
 Tool to insert automatic backlinks into Zettlr note collections or other
 interlinked markdown files.
@@ -42,6 +42,9 @@ optional arguments:
                         current directory.
   -s SUFFIX, --suffix SUFFIX
                         Suffix for the files to consider. Defaults to .md
+  -c, --clear-backlinks
+                        Instead of generating backlinks, revert all files to a
+                        no-backlinks state
   -n NPROCS, --nprocs NPROCS
                         Number of worker processes to run for file reading and
                         writing.
