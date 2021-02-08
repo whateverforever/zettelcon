@@ -23,7 +23,7 @@
 
 ## Features
 
-- Single python file, no dependencies
+- Single python file, no dependencies, under 200 sloc
 - Can run multi-core for large collections
 - Supports any note ID syntax without explicit regex
 - Supports collections that contain more than one note ID style
