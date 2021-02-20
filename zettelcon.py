@@ -178,11 +178,15 @@ def change_ids_to_filepaths(links, all_filenames):
             entry["link_target"] = target_candidates[0]
             out.append(entry)
         elif len(target_candidates) == 0:
-            print("NO TARGET FOUND FOR {}".format(pformat(entry)))
-            pass  # no possible target found
+            print(
+                "\nTARGET '{}' NOT FOUND (linked from {})".format(
+                    entry["link_target"], os.path.basename(entry["link_source"])
+                )
+            )
+            print("  > {}".format(entry["link_context"]))
         elif len(target_candidates) > 1:
             print(
-                "MULTIPLE TARGETS FOUND FOR {}: {}".format(
+                "\nMULTIPLE TARGETS FOUND FOR {}: {}".format(
                     entry, pformat(target_candidates)
                 )
             )
