@@ -57,7 +57,8 @@ def main():
 
 def process_directory(folder, suffix, nprocs, clear_backlinks=False):
     t_start = time.time()
-    files = glob.glob(os.path.join(folder, f"*{suffix}"))
+    files = glob.glob(os.path.join(folder, f"**/*{suffix}"), recursive=True)
+
     pool = Pool(processes=nprocs)
 
     if clear_backlinks:
