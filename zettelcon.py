@@ -1,6 +1,7 @@
 import datetime
 import glob
 import os
+import pickle
 import re
 import time
 from argparse import ArgumentParser
@@ -9,6 +10,7 @@ from multiprocessing import Pool
 from pprint import pformat
 
 BACKLINK_START = "## Backlinks"
+CACHEFILENAME = ".zettelcon_cache.pickle"
 # ASSUMES the standard zettlr wikilink syntax for links
 REX_LINK = re.compile(r"\[\[(.+?)\]\]")
 # ASSUMES the standard single-line hashtag syntax for titles
@@ -48,6 +50,12 @@ def main():
         default=2,
         type=int,
     )
+    parser.add_argument(
+        "-ic",
+        "--ignore-cache",
+        help="Don't use zettelcon's cache, force writing to _all_ Zettel files (even the ones where backlinks haven't changed).",
+        action="store_true",
+    )
 
     args = parser.parse_args()
     params = vars(args)
@@ -55,7 +63,9 @@ def main():
     process_directory(**params)
 
 
-def process_directory(folder, suffix, nprocs, clear_backlinks=False):
+def process_directory(
+    folder, suffix, nprocs, clear_backlinks=False, ignore_cache=False
+):
     t_start = time.time()
     files = glob.glob(os.path.join(folder, f"**/*{suffix}"), recursive=True)
 
@@ -68,23 +78,47 @@ def process_directory(folder, suffix, nprocs, clear_backlinks=False):
 
     links = []
     res = pool.map(get_file_outlinks, files)
-
     for outlinks in res:
         links.extend(outlinks)
-
     links = change_ids_to_filepaths(links, files)
-    backlinks_per_targetfile = bundle_backlinks_per_targetfile(links)
 
-    pool.map(write_backlinks_to_file, backlinks_per_targetfile.values())
+    bundled_links_current = bundle_backlinks_per_targetfile(links)
+    bundled_links_to_write = {**bundled_links_current}
 
-    unreferenced_files = set(files) - set(backlinks_per_targetfile.keys())
+    cachefile = os.path.join(folder, CACHEFILENAME)
+
+    if not ignore_cache and os.path.isfile(cachefile):
+        with open(cachefile, "rb") as fh:
+            bundled_links_cached = pickle.load(fh)
+
+            for targetfile, links_current in bundled_links_current.items():
+                links_cached = None
+                if targetfile in bundled_links_cached:
+                    links_cached = bundled_links_cached[targetfile]
+
+                if links_cached == links_current:
+                    del bundled_links_to_write[targetfile]
+
+    with open(cachefile, "wb") as fh:
+        pickle.dump(bundled_links_current, fh)
+
+    if len(bundled_links_to_write) == 0:
+        print("No new links to write.")
+
+    for target in bundled_links_to_write.keys():
+        print("  - Updating {}".format(os.path.basename(target)))
+
+    pool.map(write_backlinks_to_file, bundled_links_to_write.values())
+
+    unreferenced_files = set(files) - set(bundled_links_current.keys())
     pool.map(clear_backlinks_from_file, unreferenced_files)
 
     t_end = time.time()
     duration = t_end - t_start
     print(
-        f"\nWrote {len(links)} backlinks from/to {len(files)} files in {duration:.2f}s"
+        f"\nWrote backlinks to {len(bundled_links_to_write)} files in {duration:.3f}s"
     )
+    print(NOWSTR)
 
 
 def clear_backlinks_from_file(filepath):

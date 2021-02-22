@@ -30,7 +30,7 @@
 
 ```
 $ python zettelcon.py --help
-usage: zettelcon.py [-h] [-f FOLDER] [-s SUFFIX] [-c] [-n NPROCS]
+usage: zettelcon.py [-h] [-f FOLDER] [-s SUFFIX] [-c] [-n NPROCS] [-ic]
 
 Tool to insert automatic backlinks into Zettlr note collections or other
 interlinked markdown files.
@@ -48,6 +48,9 @@ optional arguments:
   -n NPROCS, --nprocs NPROCS
                         Number of worker processes to run for file reading and
                         writing.
+  -ic, --ignore-cache   Don't use zettelcon's cache, force writing to _all_
+                        Zettel files (even the ones where backlinks haven't
+                        changed).
 ```
 
 ---
