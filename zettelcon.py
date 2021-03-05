@@ -102,16 +102,34 @@ def process_directory(
     with open(cachefile, "wb") as fh:
         pickle.dump(bundled_links_current, fh)
 
+    unreferenced_files = set(files) - set(bundled_links_current.keys())
+    pool.map(clear_backlinks_from_file, unreferenced_files)
+    
+    print(f"\nFound {len(unreferenced_files)} files with no links to them")
+    for file in sorted(unreferenced_files):
+        print(f"  - {os.path.basename(file)}")
+
+    print(f"\nUpdating {len(bundled_links_to_write)} files in place...")
+
     if len(bundled_links_to_write) == 0:
-        print("No new links to write.")
+        print("  - No new links to write.")
 
     for target in bundled_links_to_write.keys():
         print("  - Updating {}".format(os.path.basename(target)))
 
     pool.map(write_backlinks_to_file, bundled_links_to_write.values())
 
-    unreferenced_files = set(files) - set(bundled_links_current.keys())
-    pool.map(clear_backlinks_from_file, unreferenced_files)
+    # unreferenced files are either sources or atoms
+    # files with no outlinks are either sinks or atoms
+    # thus:
+    # if unreferenced and no-outlinks:
+    #   is atom
+    # elif is referenced and has outlinks:
+    #   is embedded
+    # elif is referenced but no outlinks:
+    #   is sink
+    # elif is not referenced but has outlinks:
+    #   is source
 
     t_end = time.time()
     duration = t_end - t_start
@@ -218,7 +236,7 @@ def change_ids_to_filepaths(links, all_filenames):
                     entry["link_target"], os.path.basename(entry["link_source"])
                 )
             )
-            print("  > {}".format(entry["link_context"]))
+            print("  - {}".format(entry["link_context"]))
         elif len(target_candidates) > 1:
             print(
                 "\nMULTIPLE TARGETS FOUND FOR {}: {}".format(

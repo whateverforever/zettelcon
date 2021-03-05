@@ -59,14 +59,14 @@ optional arguments:
 
 ## Future Work
 
-- [ ] Somehow reduce the number of files that are written
-  - Zettlr takes quite a while to update its indices after the files get changed
-    so it would be benefitial to reduce write operations only to files that actually
-    get new backlinks
 - [ ] Only cite a few words before and after the citation
 - [ ] Add horizontal break before backlinks
 - [ ] Output additional info such as islands, sinks, sources, etc.
 - [ ] Check out what happens if a file that links to another doesn't have a title
+- [x] Somehow reduce the number of files that are written
+  - Zettlr takes quite a while to update its indices after the files get changed
+    so it would be benefitial to reduce write operations only to files that actually
+    get new backlinks
 - [x] Add option to clear all backlinks
 - [x] Make file writing multi core
 - [x] Add "last edited XXX" info field to markdown
