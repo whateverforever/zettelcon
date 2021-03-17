@@ -3,6 +3,7 @@ import glob
 import os
 import pickle
 import re
+import textwrap
 import time
 from argparse import ArgumentParser
 from collections import defaultdict
@@ -236,7 +237,7 @@ def change_ids_to_filepaths(links, all_filenames):
                     entry["link_target"], os.path.basename(entry["link_source"])
                 )
             )
-            print("  - {}".format(entry["link_context"]))
+            print("  - {}".format(textwrap.fill(entry["link_context"])))
         elif len(target_candidates) > 1:
             print(
                 "\nMULTIPLE TARGETS FOUND FOR {}: {}".format(
