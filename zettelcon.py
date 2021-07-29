@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import datetime
 import glob
 import os
@@ -29,8 +30,8 @@ def main():
     parser.add_argument(
         "-f",
         "--folder",
-        help="Path to folder with all the zettels in it. Defaults to current directory.",
-        default=".",
+        help="Path to folder with all the zettels in it.",
+        required=True
     )
     parser.add_argument(
         "-s",

@@ -29,8 +29,8 @@
 - Supports collections that contain more than one note ID style
 
 ```
-$ python zettelcon.py --help
-usage: zettelcon.py [-h] [-f FOLDER] [-s SUFFIX] [-c] [-n NPROCS] [-ic]
+$ python3 zettelcon.py --help
+usage: zettelcon.py [-h] -f FOLDER [-s SUFFIX] [-c] [-n NPROCS] [-ic]
 
 Tool to insert automatic backlinks into Zettlr note collections or other
 interlinked markdown files.
@@ -38,8 +38,7 @@ interlinked markdown files.
 optional arguments:
   -h, --help            show this help message and exit
   -f FOLDER, --folder FOLDER
-                        Path to folder with all the zettels in it. Defaults to
-                        current directory.
+                        Path to folder with all the zettels in it.
   -s SUFFIX, --suffix SUFFIX
                         Suffix for the files to consider. Defaults to .md
   -c, --clear-backlinks
