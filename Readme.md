@@ -1,11 +1,5 @@
 # zettelcon
 
-***
-
-## Work in Progress
-
-***
-
 > An external CLI tool for Zettlr note collections to **automatically add backlinks** to your note files.
 > Edits files in-place, so be careful and try on a copy of your files first. Run whenever you feel like an update would be worth it.
 > 
@@ -23,7 +17,7 @@
 
 ## Features
 
-- Single python file, no dependencies, under 200 sloc
+- Single python file, no dependencies, under 250 sloc
 - Can run multi-core for large collections
 - Supports any note ID syntax without explicit regex
 - Supports collections that contain more than one note ID style
@@ -33,7 +27,7 @@ $ python3 zettelcon.py --help
 usage: zettelcon.py [-h] -f FOLDER [-s SUFFIX] [-c] [-n NPROCS] [-ic]
 
 Tool to insert automatic backlinks into Zettlr note collections or other
-interlinked markdown files.
+interlinked (markdown) files.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -83,20 +77,3 @@ optional arguments:
       python ~/...path.../zettelcon.py -f $ZETTELPATH
     }
     ```
-
----
-## Issues
-
-- [x] Friction is not updated for some reason
-  - (maybe because nothing points to it?)
-  - Bug is if a formerly connected note is isolated, its backlinks stay and never change
-- If something is quoted in a list, the list is copied over to the backlink section messing up the alignment and formatting
-  - Maybe this can be fixed by not going by paragraphs but newlines instead
-  - [x] Clean quotes lines from any markdown symbols before the line begins
-- [x] Display first H1 tag in backlink list, if available
-  - Needed if the file names are only IDs and don't give any information of the title
-- [x] Last letter of Agency, Kanban, Habits is cut off
-  - These are all files with no contents besides the heading
-- [x] Path in backlinks needs to be relative to markdown file
-- [x] Bureaucracy is fucked up
-- [x] Not idempotent

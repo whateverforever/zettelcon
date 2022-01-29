@@ -25,7 +25,7 @@ NOWSTR = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
 
 def main():
     parser = ArgumentParser(
-        description="Tool to insert automatic backlinks into Zettlr note collections or other interlinked markdown files."
+        description="Tool to insert automatic backlinks into Zettlr note collections or other interlinked (markdown) files."
     )
     parser.add_argument(
         "-f",
@@ -120,18 +120,6 @@ def process_directory(
         print("  - Updating {}".format(os.path.basename(target)))
 
     pool.map(write_backlinks_to_file, bundled_links_to_write.values())
-
-    # unreferenced files are either sources or atoms
-    # files with no outlinks are either sinks or atoms
-    # thus:
-    # if unreferenced and no-outlinks:
-    #   is atom
-    # elif is referenced and has outlinks:
-    #   is embedded
-    # elif is referenced but no outlinks:
-    #   is sink
-    # elif is not referenced but has outlinks:
-    #   is source
 
     t_end = time.time()
     duration = t_end - t_start
