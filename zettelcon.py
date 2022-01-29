@@ -14,7 +14,7 @@ from pprint import pformat
 BACKLINK_START = "## Backlinks"
 CACHEFILENAME = ".zettelcon_cache.pickle"
 # ASSUMES the standard zettlr wikilink syntax for links
-REX_LINK = re.compile(r"\[\[(.+?)\]\]")
+REX_LINK = re.compile(r"\[\[(?P<linktarget>.+?)\]\]")
 # ASSUMES the standard single-line hashtag syntax for titles
 REX_TITLE = re.compile(r"^#\s+(.+)")
 REX_LINECLEANER = re.compile(r"^\s*(\*|-|\+|\d+\.|>) (\[ \]|\[x\])? *")
@@ -285,7 +285,7 @@ def find_links_in_text(paragraph):
     out = []
     for res in REX_LINK.finditer(paragraph):
         link = {
-            "link_target": res.group(1),
+            "link_target": res.group("linktarget"),
             "link_context": clean_para,
             "context_pos_start": res.start(),
             "context_pos_end": res.end(),
